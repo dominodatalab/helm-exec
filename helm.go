@@ -2,6 +2,7 @@ package helmexec
 
 type Helm interface {
 	Init(...InitOption) error
+	Install(chstr string, opts *InstallOptions) error
 
 	//Install() error
 	//Upgrade(release string, ) error
