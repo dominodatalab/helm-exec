@@ -1,0 +1,4 @@
+NAME    	VERSION	DESCRIPTION
+registry	0.7.0  	This plugin provides app-registry client to Helm.
+        	       	usage:
+        	       	  $ helm r...

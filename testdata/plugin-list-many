@@ -1,0 +1,6 @@
+NAME    	VERSION 	DESCRIPTION
+registry	0.7.0   	This plugin provides app-registry client to Helm.
+        	        	usage:
+        	        	  $ helm r...
+diff    	2.11.0+5	Preview helm upgrade changes as a diff
+env     	0.1.0   	Print out the helm environment.

@@ -1,6 +1,9 @@
 package helmexec
 
-import "errors"
+import (
+	"errors"
+	"regexp"
+)
 
 type Plugin struct {
 	Name        string
@@ -22,6 +25,28 @@ func (w wrapper) PluginInstall(pathOrURL, version string) error {
 	return err
 }
 
-func (w wrapper) PluginList() ([]Plugin, error) {
-	return nil, nil
+func (w wrapper) PluginList() (plugins []Plugin, err error) {
+	out, err := w.exec("plugin", "list")
+	if err != nil {
+		return
+	}
+
+	re := regexp.MustCompile(`(?m)^(\S+)\s+(\S+)\s+(.*)$`)
+	matches := re.FindAllStringSubmatch(string(out), -1)
+	if matches == nil {
+		return
+	}
+
+	for _, data := range matches {
+		if data[1] == "NAME" {
+			continue
+		}
+		plugin := Plugin{
+			Name:        data[1],
+			Version:     data[2],
+			Description: data[3],
+		}
+		plugins = append(plugins, plugin)
+	}
+	return
 }
