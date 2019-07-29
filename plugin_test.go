@@ -71,11 +71,6 @@ func TestWrapper_PluginList(t *testing.T) {
 				{Name: "env", Version: "0.1.0", Description: "Print out the helm environment."},
 			},
 		},
-		{
-			"unexpected_format",
-			"testdata/plugin-list-unexpected",
-			nil,
-		},
 	}
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -87,6 +82,14 @@ func TestWrapper_PluginList(t *testing.T) {
 			assert.Equal(t, tc.exp, list)
 		})
 	}
+
+	t.Run("bad_format", func(t *testing.T) {
+		runner.execFn = func([]string) ([]byte, error) {
+			return ioutil.ReadFile("testdata/plugin-list-unexpected")
+		}
+		_, err := helm.PluginList()
+		assert.Error(t, err)
+	})
 
 	assertRunnerErr(t, runner, func() error {
 		_, err := helm.PluginList()
