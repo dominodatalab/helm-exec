@@ -85,7 +85,7 @@ func TestWrapper_PluginList(t *testing.T) {
 
 	t.Run("bad_format", func(t *testing.T) {
 		runner.execFn = func([]string) ([]byte, error) {
-			return ioutil.ReadFile("testdata/plugin-list-unexpected")
+			return []byte("some unexpected plugin list format"), nil
 		}
 		_, err := helm.PluginList()
 		assert.Error(t, err)

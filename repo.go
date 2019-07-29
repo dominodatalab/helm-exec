@@ -2,7 +2,10 @@ package helmexec
 
 import (
 	"errors"
+	"fmt"
+	"reflect"
 	"regexp"
+	"strings"
 )
 
 type RepoAddOptions struct {
@@ -43,8 +46,9 @@ func (w Wrapper) RepoList() (repos []Repository, err error) {
 
 	re := regexp.MustCompile(`(?m)^(\S+)\s+(.*)$`)
 	matches := re.FindAllStringSubmatch(string(out), -1)
-	if matches == nil {
-		return
+	header := []string{"NAME", "URL"}
+	if matches == nil || !reflect.DeepEqual(strings.Fields(matches[0][0]), header) {
+		return nil, fmt.Errorf("invalid list format: %s", string(out))
 	}
 
 	for _, data := range matches {
