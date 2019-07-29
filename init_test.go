@@ -1,49 +1,45 @@
-package helmexec
+package helmexec_test
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
+	he "github.com/dominodatalab/helm-exec"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestWrapper_Init(t *testing.T) {
-	runner := new(FakeRunner)
-	helm := New()
-	helm.runner = runner
+	helm, runner := NewTestWrapper()
 
 	t.Run("success", func(t *testing.T) {
-		runner.execFn = func(cmd []string) (bytes []byte, e error) {
-			assert.Equal(t, []string{"helm", "init"}, cmd)
+		runner.execFn = func(cmd []string) ([]byte, error) {
+			assert.Equal(t, strings.Fields("helm init"), cmd)
 			return nil, nil
 		}
-
 		assert.NoError(t, helm.Init())
 	})
 
 	t.Run("upgrade", func(t *testing.T) {
-		runner.execFn = func(cmd []string) (bytes []byte, e error) {
-			assert.Equal(t, []string{"helm", "init", "--upgrade"}, cmd)
+		runner.execFn = func(cmd []string) ([]byte, error) {
+			assert.Equal(t, strings.Fields("helm init --upgrade"), cmd)
 			return nil, nil
 		}
-
-		assert.NoError(t, helm.Init(InitUpgrade(true)))
+		assert.NoError(t, helm.Init(he.InitUpgrade(true)))
 	})
 
 	t.Run("wait", func(t *testing.T) {
-		runner.execFn = func(cmd []string) (bytes []byte, e error) {
-			assert.Equal(t, []string{"helm", "init", "--wait"}, cmd)
+		runner.execFn = func(cmd []string) ([]byte, error) {
+			assert.Equal(t, strings.Fields("helm init --wait"), cmd)
 			return nil, nil
 		}
-
-		assert.NoError(t, helm.Init(InitWait(true)))
+		assert.NoError(t, helm.Init(he.InitWait(true)))
 	})
 
 	t.Run("error", func(t *testing.T) {
-		runner.execFn = func(cmd []string) (bytes []byte, e error) {
+		runner.execFn = func(cmd []string) ([]byte, error) {
 			return nil, errors.New("runner error")
 		}
-
-		assert.Error(t, helm.Init())
+		assert.EqualError(t, helm.Init(), "runner error")
 	})
 }

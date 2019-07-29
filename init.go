@@ -19,7 +19,7 @@ func InitUpgrade(upgrade bool) InitOption {
 	}
 }
 
-func (w wrapper) Init(opts ...InitOption) error {
+func (w Wrapper) Init(opts ...InitOption) error {
 	conf := new(initConfig)
 	for _, opt := range opts {
 		opt(conf)

@@ -11,7 +11,7 @@ type InstallOptions struct {
 	Set         map[string]string
 }
 
-func (w wrapper) Install(chstr string, opts *InstallOptions) error {
+func (w Wrapper) Install(chstr string, opts *InstallOptions) error {
 	args := []string{"install", chstr}
 	if opts != nil {
 		if opts.Name != "" {

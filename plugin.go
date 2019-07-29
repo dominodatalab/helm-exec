@@ -11,7 +11,7 @@ type Plugin struct {
 	Description string
 }
 
-func (w wrapper) PluginInstall(pathOrURL, version string) error {
+func (w Wrapper) PluginInstall(pathOrURL, version string) error {
 	if pathOrURL == "" {
 		return errors.New("pathOrURL cannot be empty")
 	}
@@ -25,7 +25,7 @@ func (w wrapper) PluginInstall(pathOrURL, version string) error {
 	return err
 }
 
-func (w wrapper) PluginList() (plugins []Plugin, err error) {
+func (w Wrapper) PluginList() (plugins []Plugin, err error) {
 	out, err := w.exec("plugin", "list")
 	if err != nil {
 		return
@@ -38,7 +38,7 @@ func (w wrapper) PluginList() (plugins []Plugin, err error) {
 	}
 
 	for _, data := range matches {
-		if data[1] == "NAME" {
+		if data[1] == "NAME" { // ignore header
 			continue
 		}
 		plugin := Plugin{

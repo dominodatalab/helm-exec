@@ -1,27 +1,27 @@
-package helmexec
+package helmexec_test
 
 import (
 	"errors"
 	"testing"
 
+	he "github.com/dominodatalab/helm-exec"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestWrapper_Install(t *testing.T) {
-	runner := new(FakeRunner)
-	helm := New()
-	helm.runner = runner
+	helm, runner := NewTestWrapper()
+	chartStr := "chart-url-or-path"
 
 	t.Run("no_opts", func(t *testing.T) {
-		runner.execFn = func(cmd []string) (bytes []byte, e error) {
-			assert.Equal(t, []string{"helm", "install", "chart-url-or-path"}, cmd)
+		runner.execFn = func(cmd []string) ([]byte, error) {
+			assert.Equal(t, []string{"helm", "install", chartStr}, cmd)
 			return nil, nil
 		}
-		assert.NoError(t, helm.Install("chart-url-or-path", nil))
+		assert.NoError(t, helm.Install(chartStr, nil))
 	})
 
 	t.Run("full_opts", func(t *testing.T) {
-		opts := &InstallOptions{
+		opts := &he.InstallOptions{
 			Name:        "rls",
 			Namespace:   "my-ns",
 			Description: "awesome opossum",
@@ -32,9 +32,9 @@ func TestWrapper_Install(t *testing.T) {
 				"buckle": "my shoe",
 			},
 		}
-		runner.execFn = func(cmd []string) (bytes []byte, e error) {
+		runner.execFn = func(cmd []string) ([]byte, error) {
 			fullCmd := []string{
-				"helm", "install", "chart-url-or-path",
+				"helm", "install", chartStr,
 				"--name=rls",
 				"--namespace=my-ns",
 				`--description="awesome opossum"`,
@@ -43,16 +43,16 @@ func TestWrapper_Install(t *testing.T) {
 				"--set", `one="two"`,
 				"--set", `buckle="my shoe"`,
 			}
-			assert.Equal(t, fullCmd, cmd)
+			assert.EqualValues(t, fullCmd, cmd)
 			return nil, nil
 		}
-		assert.NoError(t, helm.Install("chart-url-or-path", opts))
+		assert.NoError(t, helm.Install(chartStr, opts))
 	})
 
 	t.Run("error", func(t *testing.T) {
-		runner.execFn = func(cmd []string) (bytes []byte, e error) {
+		runner.execFn = func([]string) ([]byte, error) {
 			return nil, errors.New("runner error")
 		}
-		assert.Error(t, helm.Install("chart-url-or-path", nil))
+		assert.EqualError(t, helm.Install(chartStr, nil), "runner error")
 	})
 }

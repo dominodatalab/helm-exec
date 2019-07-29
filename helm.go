@@ -9,7 +9,8 @@ type Helm interface {
 	PluginInstall(pathOrURL, version string) error
 	PluginList() ([]Plugin, error)
 
-	//RepoAdd() error
+	RepoAdd(name, url string, opts *RepoAddOptions) error
+	RepoList() ([]Repository, error)
 
 	//IsRepo() bool
 	//IsRelease() bool
