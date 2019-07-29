@@ -12,6 +12,8 @@ type Helm interface {
 	RepoAdd(name, url string, opts *RepoAddOptions) error
 	RepoList() ([]Repository, error)
 
-	//IsRepo() bool
-	//IsRelease() bool
+	// convenience functions
+
+	IsRepo(name string) bool
+	IsRelease(name string) bool
 }
