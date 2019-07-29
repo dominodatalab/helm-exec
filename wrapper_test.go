@@ -1,6 +1,7 @@
 package helmexec_test
 
 import (
+	"errors"
 	"testing"
 
 	he "github.com/dominodatalab/helm-exec"
@@ -37,4 +38,14 @@ func TestWrapper_SetRunner(t *testing.T) {
 
 	assert.Error(t, helm.SetRunner(nil))
 	assert.NoError(t, helm.SetRunner(&command.ShellRunner{}))
+}
+
+func assertRunnerErr(t *testing.T, runner *FakeRunner, fn func() error) {
+	t.Helper()
+
+	errMsg := "runner error"
+	runner.execFn = func([]string) ([]byte, error) {
+		return nil, errors.New(errMsg)
+	}
+	assert.EqualError(t, fn(), errMsg)
 }

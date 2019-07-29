@@ -1,7 +1,6 @@
 package helmexec_test
 
 import (
-	"errors"
 	"io/ioutil"
 	"testing"
 
@@ -38,11 +37,8 @@ func TestWrapper_PluginInstall(t *testing.T) {
 		assert.EqualError(t, err, "pathOrURL cannot be empty")
 	})
 
-	t.Run("error", func(t *testing.T) {
-		runner.execFn = func([]string) ([]byte, error) {
-			return nil, errors.New("runner error")
-		}
-		assert.EqualError(t, helm.PluginInstall(pluginName, pluginVersion), "runner error")
+	assertRunnerErr(t, runner, func() error {
+		return helm.PluginInstall(pluginName, pluginVersion)
 	})
 }
 
@@ -92,11 +88,8 @@ func TestWrapper_PluginList(t *testing.T) {
 		})
 	}
 
-	t.Run("error", func(t *testing.T) {
-		runner.execFn = func([]string) ([]byte, error) {
-			return nil, errors.New("runner error")
-		}
+	assertRunnerErr(t, runner, func() error {
 		_, err := helm.PluginList()
-		assert.EqualError(t, err, "runner error")
+		return err
 	})
 }

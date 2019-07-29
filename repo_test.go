@@ -1,7 +1,6 @@
 package helmexec_test
 
 import (
-	"errors"
 	"testing"
 
 	he "github.com/dominodatalab/helm-exec"
@@ -78,14 +77,16 @@ func TestWrapper_RepoAdd(t *testing.T) {
 		}
 	})
 
-	t.Run("error", func(t *testing.T) {
-		errMsg := "runner error"
-		runner.execFn = func([]string) ([]byte, error) {
-			return nil, errors.New(errMsg)
-		}
-		assert.EqualError(t, helm.RepoAdd(repoName, repoURL, nil), errMsg)
+	assertRunnerErr(t, runner, func() error {
+		return helm.RepoAdd(repoName, repoURL, nil)
 	})
 }
 
 func TestWrapper_RepoList(t *testing.T) {
+	helm, runner := NewTestWrapper()
+
+	assertRunnerErr(t, runner, func() error {
+		_, err := helm.RepoList()
+		return err
+	})
 }

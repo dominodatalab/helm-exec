@@ -1,7 +1,6 @@
 package helmexec_test
 
 import (
-	"errors"
 	"strings"
 	"testing"
 
@@ -36,10 +35,7 @@ func TestWrapper_Init(t *testing.T) {
 		assert.NoError(t, helm.Init(he.InitWait(true)))
 	})
 
-	t.Run("error", func(t *testing.T) {
-		runner.execFn = func(cmd []string) ([]byte, error) {
-			return nil, errors.New("runner error")
-		}
-		assert.EqualError(t, helm.Init(), "runner error")
+	assertRunnerErr(t, runner, func() error {
+		return helm.Init()
 	})
 }
