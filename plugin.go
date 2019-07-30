@@ -2,10 +2,6 @@ package helmexec
 
 import (
 	"errors"
-	"fmt"
-	"reflect"
-	"regexp"
-	"strings"
 )
 
 type Plugin struct {
@@ -29,25 +25,16 @@ func (w Wrapper) PluginInstall(pathOrURL, version string) error {
 }
 
 func (w Wrapper) PluginList() (plugins []Plugin, err error) {
-	out, err := w.exec("plugin", "list")
-	if err != nil {
-		return
-	}
-
-	re := regexp.MustCompile(`(?m)^(\S+)\s+(\S+)\s+(.*)$`)
-	matches := re.FindAllStringSubmatch(string(out), -1)
-	header := []string{"NAME", "VERSION", "DESCRIPTION"}
-	if matches == nil || !reflect.DeepEqual(strings.Fields(matches[0][0]), header) {
-		return nil, fmt.Errorf("invalid list format: %s", string(out))
-	}
-
-	for _, data := range matches[1:] {
+	cmdArgs := []string{"plugin", "list"}
+	headerOutput := []string{"NAME", "VERSION", "DESCRIPTION"}
+	captureRegex := `(?m)^(\S+)\s+(\S+)\s+(.*)$`
+	err = w.listAction(cmdArgs, headerOutput, captureRegex, func(item []string) {
 		plugin := Plugin{
-			Name:        data[1],
-			Version:     data[2],
-			Description: data[3],
+			Name:        item[1],
+			Version:     item[2],
+			Description: item[3],
 		}
 		plugins = append(plugins, plugin)
-	}
+	})
 	return
 }

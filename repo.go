@@ -1,12 +1,6 @@
 package helmexec
 
-import (
-	"errors"
-	"fmt"
-	"reflect"
-	"regexp"
-	"strings"
-)
+import "errors"
 
 type RepoAddOptions struct {
 	Username string
@@ -39,27 +33,15 @@ func (w Wrapper) RepoAdd(name, url string, opts *RepoAddOptions) error {
 }
 
 func (w Wrapper) RepoList() (repos []Repository, err error) {
-	out, err := w.exec("repo", "list")
-	if err != nil {
-		return
-	}
-
-	re := regexp.MustCompile(`(?m)^(\S+)\s+(.*)$`)
-	matches := re.FindAllStringSubmatch(string(out), -1)
-	header := []string{"NAME", "URL"}
-	if matches == nil || !reflect.DeepEqual(strings.Fields(matches[0][0]), header) {
-		return nil, fmt.Errorf("invalid list format: %s", string(out))
-	}
-
-	for _, data := range matches {
-		if data[1] == "NAME" {
-			continue
-		}
+	cmdArgs := []string{"repo", "list"}
+	headerOutput := []string{"NAME", "URL"}
+	captureRegex := `(?m)^(\S+)\s+(.*)$`
+	err = w.listAction(cmdArgs, headerOutput, captureRegex, func(item []string) {
 		repo := Repository{
-			Name: data[1],
-			URL:  data[2],
+			Name: item[1],
+			URL:  item[2],
 		}
 		repos = append(repos, repo)
-	}
+	})
 	return
 }
