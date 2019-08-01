@@ -1,0 +1,1 @@
+{"Next":"","Releases":[{"Name":"postgresql","Revision":1,"Updated":"Thu Aug  1 13:58:02 2019","Status":"DEPLOYED","Chart":"postgresql-6.2.0","AppVersion":"11.4.0","Namespace":"default"}]}

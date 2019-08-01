@@ -2,7 +2,7 @@ package helmexec_test
 
 import (
 	"errors"
-	"fmt"
+	"io/ioutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,15 +11,15 @@ import (
 func TestWrapper_IsRelease(t *testing.T) {
 	helm, runner := NewTestWrapper()
 
-	rlsName := "some-rls"
 	rlsFn := func(name string) func([]string) ([]byte, error) {
 		return func(cmd []string) ([]byte, error) {
-			assert.Equal(t, []string{"helm", "list", "--all", "--short", name}, cmd)
-			return []byte(fmt.Sprintf("%s\nanother-rls\n", rlsName)), nil
+			assert.Equal(t, []string{"helm", "list", "--all", "--output=json", name}, cmd)
+			return ioutil.ReadFile("testdata/release-list-one")
 		}
 	}
 
 	t.Run("exists", func(t *testing.T) {
+		rlsName := "postgresql"
 		runner.execFn = rlsFn(rlsName)
 		assert.True(t, helm.IsRelease(rlsName))
 	})
@@ -34,7 +34,7 @@ func TestWrapper_IsRelease(t *testing.T) {
 		runner.execFn = func([]string) ([]byte, error) {
 			return nil, errors.New("runner error")
 		}
-		assert.False(t, helm.IsRelease(rlsName))
+		assert.False(t, helm.IsRelease("notarealthing"))
 	})
 }
 

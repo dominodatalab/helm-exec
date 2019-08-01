@@ -1,19 +1,34 @@
 package helmexec
 
-import "strings"
+import (
+	"encoding/json"
+)
 
-func (w Wrapper) IsRelease(name string) bool {
-	out, err := w.exec("list", "--all", "--short", name)
+type release struct {
+	Name string `json:"Name"`
+}
+
+type listResponse struct {
+	Releases []release `json:"Releases"`
+}
+
+func (w Wrapper) IsRelease(name string) (exists bool) {
+	out, err := w.exec("list", "--all", "--output=json", name)
 	if err != nil {
-		return false
+		return
 	}
 
-	for _, rlsName := range strings.Split(string(out), "\n") {
-		if name == rlsName {
+	var rsp listResponse
+	if err := json.Unmarshal(out, &rsp); err != nil {
+		return
+	}
+
+	for _, rls := range rsp.Releases {
+		if rls.Name == name {
 			return true
 		}
 	}
-	return false
+	return
 }
 
 func (w Wrapper) IsRepo(name string) bool {
