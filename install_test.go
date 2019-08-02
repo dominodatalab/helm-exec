@@ -32,17 +32,24 @@ func TestWrapper_Install(t *testing.T) {
 			},
 		}
 		runner.execFn = func(cmd []string) ([]byte, error) {
-			fullCmd := []string{
+			leadingCmd := cmd[:len(cmd)-4]
+			exp := []string{
 				"helm", "install", chartStr,
 				"--name=rls",
 				"--namespace=my-ns",
 				`--description="awesome opossum"`,
 				"--version=1.2.3",
 				"--wait",
+			}
+			assert.Equal(t, exp, leadingCmd)
+
+			setFlags := cmd[len(cmd)-4:]
+			exp = []string{
 				"--set", `one="two"`,
 				"--set", `buckle="my shoe"`,
 			}
-			assert.EqualValues(t, fullCmd, cmd)
+			assert.ElementsMatch(t, exp, setFlags)
+
 			return nil, nil
 		}
 		assert.NoError(t, helm.Install(chartStr, opts))
