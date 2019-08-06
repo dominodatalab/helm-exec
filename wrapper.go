@@ -32,6 +32,15 @@ func (w *Wrapper) SetRunner(runner command.Runner) error {
 	return errors.New("command runner cannot be nil")
 }
 
+func (w Wrapper) Delete(release string) error {
+	_, err := w.exec("delete", release)
+	if err != nil {
+		return err
+	}
+
+	return nil // TODO NFORD Fill me in
+}
+
 func (w Wrapper) exec(args ...string) ([]byte, error) {
 	return w.runner.Execute(w.executable, args...)
 }
