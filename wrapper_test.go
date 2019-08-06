@@ -49,3 +49,34 @@ func assertRunnerErr(t *testing.T, runner *FakeRunner, fn func() error) {
 	}
 	assert.EqualError(t, fn(), errMsg)
 }
+
+func TestWrapper_Delete(t *testing.T) {
+	helm, runner := NewTestWrapper()
+
+	delFnSuccess := func(name string) func([]string) ([]byte, error) {
+		return func(cmd []string) ([]byte, error) {
+			assert.Equal(t, []string{"helm", "delete", name}, cmd)
+			return nil, nil
+		}
+	}
+
+	t.Run("Successful Delete", func(t *testing.T) {
+		release := "phpmyadmin"
+		runner.execFn = delFnSuccess(release)
+		assert.NoError(t, helm.Delete(release))
+	})
+
+	delFnFailure := func(name string) func([]string) ([]byte, error) {
+		return func(cmd []string) ([]byte, error) {
+			assert.Equal(t, []string{"helm", "delete", name}, cmd)
+			return nil, errors.New("Helm delete failure")
+		}
+	}
+
+	t.Run("Errored Delete", func(t *testing.T) {
+		release := "sin"
+		runner.execFn = delFnFailure(release)
+		assert.Error(t, helm.Delete(release))
+	})
+
+}
